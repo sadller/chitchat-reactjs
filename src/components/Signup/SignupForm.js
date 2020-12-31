@@ -26,13 +26,13 @@ const useStyles = makeStyles({
 
 const SignupForm = (props) => {
     const classes = useStyles();
-    const [showPassword,togglePassword] = useState(false);
+    const [showPassword, togglePassword] = useState(false);
 
     const initialFormState = {
         firstName: "",
         lastName: "",
         gender: "",
-        dob: new Date(2000,0,1),
+        dob: new Date(2000, 0, 1),
         email: "",
         password: ""
     }
@@ -64,46 +64,57 @@ const SignupForm = (props) => {
         })
     }
 
-    const handleSubmit = (event) => {
-        props.onSignup(formState);
-        event.preventDefault();
+    const forceLower = (event) => {
+        setFormState({
+            ...formState,
+            [event.target.name]: event.target.value.toLowerCase()
+        })
     }
 
-    useEffect(()=>{
+    const handleSubmit = (event) => {
+        const t = Object.values(errorState).filter(error => error !== "");
+        if (t.length === 0) {
+            console.log("All good");
+            props.onSignup(formState);
+        }
+        event.preventDefault()
+    }
+
+    useEffect(() => {
         validateDate();
-    },[formState.dob]);
+    }, [formState.dob]);
 
     const validateDate = () => {
-        if(formState.dob instanceof Date && !isNaN(formState.dob)){
-            let ageInYear = (new Date()).getFullYear()-formState.dob.getFullYear();
-            if(ageInYear<10){
+        if (formState.dob instanceof Date && !isNaN(formState.dob)) {
+            let ageInYear = (new Date()).getFullYear() - formState.dob.getFullYear();
+            if (ageInYear < 10) {
                 setErrorState({
                     ...errorState,
                     dob: "Too young to be here"
                 })
-            }else{
+            } else {
                 setErrorState({
                     ...errorState,
                     dob: ""
                 })
             }
-        }else{
+        } else {
             setErrorState({
                 ...errorState,
                 dob: "Invalid Date"
             })
-        }    
+        }
     }
 
     const validate = (event) => {
-        switch(event.target.name){
+        switch (event.target.name) {
             case "firstName":
-                if(! /^[a-zA-Z]{1,30}$/.test(formState.firstName)){
+                if (! /^[a-zA-Z]{1,30}$/.test(formState.firstName)) {
                     setErrorState({
                         ...errorState,
                         firstName: "Invalid First Name"
                     })
-                }else{
+                } else {
                     setErrorState({
                         ...errorState,
                         firstName: ""
@@ -112,12 +123,12 @@ const SignupForm = (props) => {
                 break;
 
             case "lastName":
-                if(! /^[a-zA-Z]{1,30}$/.test(formState.lastName)){
+                if (! /^[a-zA-Z]{1,30}$/.test(formState.lastName)) {
                     setErrorState({
                         ...errorState,
                         lastName: "Invalid Last Name"
                     })
-                }else{
+                } else {
                     setErrorState({
                         ...errorState,
                         lastName: ""
@@ -126,12 +137,12 @@ const SignupForm = (props) => {
                 break;
 
             case "gender":
-                if(["Male","Female","Not Sure"].indexOf(formState.gender)===-1){
+                if (["Male", "Female", "Not Sure"].indexOf(formState.gender) === -1) {
                     setErrorState({
                         ...errorState,
                         gender: "Invalid gender"
                     })
-                }else{
+                } else {
                     setErrorState({
                         ...errorState,
                         gender: ""
@@ -140,26 +151,26 @@ const SignupForm = (props) => {
                 break;
 
             case "email":
-                if(! /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(formState.email)){
+                if (! /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(formState.email)) {
                     setErrorState({
                         ...errorState,
                         email: "Invalid Email Address"
                     })
-                }else{
+                } else {
                     setErrorState({
                         ...errorState,
                         email: ""
                     })
                 }
                 break;
-            
+
             case "password":
-                if(formState.password.length<6){
+                if (formState.password.length < 6) {
                     setErrorState({
                         ...errorState,
                         password: "Weak password"
                     })
-                }else{
+                } else {
                     setErrorState({
                         ...errorState,
                         password: ""
@@ -170,136 +181,137 @@ const SignupForm = (props) => {
     }
 
     return (
-            <Container className={classes.signup_form}>
-                <form onSubmit={handleSubmit}>
-                    <Grid container>
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                name="firstName"
-                                label="First Name"
-                                margin="normal"
-                                fullWidth
-                                value={formState.firstName}
-                                onChange={handleInput}
-                                onBlur={validate}
-                                error={errorState.firstName!==""}
-                                helperText={errorState.firstName!=="" ? errorState.firstName : null}
-                                required
-                            />
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                name="lastName"
-                                label="Last Name"
-                                margin="normal"
-                                fullWidth
-                                value={formState.lastName}
-                                onChange={handleInput}
-                                onBlur={validate}
-                                error={errorState.lastName!==""}
-                                helperText={errorState.lastName!=="" ? errorState.lastName : null}
-                                required
-                            />
-                        </Grid>
+        <Container className={classes.signup_form}>
+            <form onSubmit={handleSubmit}>
+                <Grid container>
+                    <Grid item sm={6} xs={12}>
+                        <TextField
+                            name="firstName"
+                            label="First Name"
+                            margin="normal"
+                            fullWidth
+                            value={formState.firstName}
+                            onChange={handleInput}
+                            onBlur={validate}
+                            error={errorState.firstName !== ""}
+                            helperText={errorState.firstName !== "" ? errorState.firstName : null}
+                            required
+                        />
                     </Grid>
-
-                    <Grid container>
-                        <Grid item sm={5} xs={12}>
-                            <FormControl margin="normal" fullWidth error={errorState.gender!==""}>
-                                <InputLabel>Gender</InputLabel>
-                                <Select
-                                    name="gender"
-                                    value={formState.gender}
-                                    onChange={handleInput}
-                                    onBlur={validate}
-                                    error={errorState.gender!==""}
-                                    required
-                                >
-                                    <MenuItem value={"Male"}>Male</MenuItem>
-                                    <MenuItem value={"Female"}>Female</MenuItem>
-                                    <MenuItem value={"Not Sure"}>Not Sure</MenuItem>
-                                </Select>
-                                <FormHelperText>{errorState.gender!=="" ? errorState.gender : null}</FormHelperText>
-                            </FormControl>
-                        </Grid>
-                        <Grid item sm={1} xs={false}></Grid>
-                        <Grid item sm={6} xs={12}>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                <KeyboardDatePicker
-                                    name="dob"
-                                    //disableToolbar
-                                    //variant="inline"
-                                    margin="normal"
-                                    format="MM/dd/yyyy"
-                                    label="Date Of Birth"
-                                    fullWidth
-                                    value={formState.dob}
-                                    onChange={handleDate}
-                                    error={errorState.dob!==""}
-                                    helperText={errorState.dob!=="" ? errorState.dob : null}
-                                    required
-                                    KeyboardButtonProps={{
-                                        'aria-label': 'change date',
-                                    }}
-                                />
-                            </MuiPickersUtilsProvider>
-                        </Grid>
+                    <Grid item sm={6} xs={12}>
+                        <TextField
+                            name="lastName"
+                            label="Last Name"
+                            margin="normal"
+                            fullWidth
+                            value={formState.lastName}
+                            onChange={handleInput}
+                            onBlur={validate}
+                            error={errorState.lastName !== ""}
+                            helperText={errorState.lastName !== "" ? errorState.lastName : null}
+                            required
+                        />
                     </Grid>
+                </Grid>
 
-                    <Grid container>
-                        <Grid item sm={12} xs={12}>
-                            <TextField
-                                name="email"
-                                label="Email"
-                                margin="normal"
-                                fullWidth
-                                value={formState.email}
+                <Grid container>
+                    <Grid item sm={5} xs={12}>
+                        <FormControl margin="normal" fullWidth error={errorState.gender !== ""}>
+                            <InputLabel>Gender</InputLabel>
+                            <Select
+                                name="gender"
+                                value={formState.gender}
                                 onChange={handleInput}
                                 onBlur={validate}
-                                error={errorState.email!==""}
-                                helperText={errorState.email!=="" ? errorState.email : null}
+                                error={errorState.gender !== ""}
                                 required
-                            />
-                        </Grid>
+                            >
+                                <MenuItem value={"Male"}>Male</MenuItem>
+                                <MenuItem value={"Female"}>Female</MenuItem>
+                                <MenuItem value={"Not Sure"}>Not Sure</MenuItem>
+                            </Select>
+                            <FormHelperText>{errorState.gender !== "" ? errorState.gender : null}</FormHelperText>
+                        </FormControl>
                     </Grid>
-
-                    <Grid container>
-                        <Grid item sm={12} xs={12}>
-                            <TextField
-                                name="password"
-                                type={showPassword? "text":"password"}
-                                label="Password"
+                    <Grid item sm={1} xs={false}></Grid>
+                    <Grid item sm={6} xs={12}>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <KeyboardDatePicker
+                                name="dob"
+                                //disableToolbar
+                                //variant="inline"
                                 margin="normal"
+                                format="MM/dd/yyyy"
+                                label="Date Of Birth"
                                 fullWidth
-                                value={formState.password}
-                                onChange={handleInput}
-                                onBlur={validate}
-                                error={errorState.password!==""}
-                                helperText={errorState.password!=="" ? errorState.password : null}
+                                value={formState.dob}
+                                onChange={handleDate}
+                                error={errorState.dob !== ""}
+                                helperText={errorState.dob !== "" ? errorState.dob : null}
                                 required
-                                InputProps={{
-                                    endAdornment: (
-                                        <IconButton aria-label="settings" onClick={()=>togglePassword(!showPassword)} className={classes.toggle_pwd_btn}>
-                                            { showPassword ? <VisibilityIcon /> : <VisibilityOffIcon /> }
-                                        </IconButton>
-                                    )
+                                KeyboardButtonProps={{
+                                    'aria-label': 'change date',
                                 }}
                             />
-
-                        </Grid>
+                        </MuiPickersUtilsProvider>
                     </Grid>
+                </Grid>
 
-
-                    <Grid container>
-                        <Grid item sm={3} xs={false}></Grid>
-                        <Grid item sm={6} xs={12}>
-                            <Button type="submit" variant="contained" color="primary" fullWidth className={classes.signup_btn}>Sign up</Button>
-                        </Grid>
-                        <Grid item sm={3} xs={false}></Grid>
+                <Grid container>
+                    <Grid item sm={12} xs={12}>
+                        <TextField
+                            name="email"
+                            label="Email"
+                            margin="normal"
+                            fullWidth
+                            value={formState.email}
+                            onChange={handleInput}
+                            onKeyUp={forceLower}
+                            onBlur={validate}
+                            error={errorState.email !== ""}
+                            helperText={errorState.email !== "" ? errorState.email : null}
+                            required
+                        />
                     </Grid>
-                </form>
+                </Grid>
 
-            </Container>
+                <Grid container>
+                    <Grid item sm={12} xs={12}>
+                        <TextField
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            label="Password"
+                            margin="normal"
+                            fullWidth
+                            value={formState.password}
+                            onChange={handleInput}
+                            onBlur={validate}
+                            error={errorState.password !== ""}
+                            helperText={errorState.password !== "" ? errorState.password : null}
+                            required
+                            InputProps={{
+                                endAdornment: (
+                                    <IconButton aria-label="settings" onClick={() => togglePassword(!showPassword)} className={classes.toggle_pwd_btn}>
+                                        { showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                                    </IconButton>
+                                )
+                            }}
+                        />
+
+                    </Grid>
+                </Grid>
+
+
+                <Grid container>
+                    <Grid item sm={3} xs={false}></Grid>
+                    <Grid item sm={6} xs={12}>
+                        <Button type="submit" variant="contained" color="primary" fullWidth className={classes.signup_btn} disabled={props.loading}>Sign up</Button>
+                    </Grid>
+                    <Grid item sm={3} xs={false}></Grid>
+                </Grid>
+            </form>
+
+        </Container>
     )
 }
 

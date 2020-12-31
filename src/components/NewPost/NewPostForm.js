@@ -117,7 +117,7 @@ const NewPostForm = (props) => {
                 />
             </div>
             <Button variant="outlined" color="default" onClick={props.closeModal}> Cancel</Button>
-            <Button variant="contained" color="primary" onClick={() => handleSubmit()} >Post</Button>
+            <Button variant="contained" color="primary" onClick={() => handleSubmit()} disabled={props.loading} >Post</Button>
         </div>
     )
 }

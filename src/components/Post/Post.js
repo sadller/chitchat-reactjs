@@ -6,6 +6,8 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Carousel from "react-material-ui-carousel";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import { Alert } from "@material-ui/lab";
+import { useState } from "react";
 
 const useStyles = makeStyles({
     card: {
@@ -35,6 +37,7 @@ const Post = (props) => {
     const classes = useStyles();
     const { post } = props;
     const history = useHistory();
+    const [message, setMessage] = useState({show: false, severity: "info", content: ""})
 
     const convertToDate = (timestamp) => {
         return new Date(timestamp).toLocaleString();
@@ -52,7 +55,11 @@ const Post = (props) => {
                 history.go(0);
             }
         } catch (err) {
-            console.log(err);
+            setMessage({
+                show: true,
+                severity: "error",
+                content: (err.response===undefined) ? "Some error occurred" : err.response.data.message
+            })
         }
     }
 
@@ -73,8 +80,8 @@ const Post = (props) => {
                     animation="slide"
                 >
                     {
-                        post.images.map((imageName, i) => {
-                            return <img src={process.env.REACT_APP_SERVER_HOST + "/posts/images/" + imageName} key={i} alt={imageName} className={classes["post-image"]} />
+                        post.images.map((image, i) => {
+                            return <img src={image.url} key={i} alt={image.url} className={classes["post-image"]} />
                         })
                     }
                 </Carousel>
@@ -83,12 +90,13 @@ const Post = (props) => {
                 <Typography variant="body2" color="textSecondary" component="p">
                     {post.text}
                 </Typography>
+                { message.show ? <Alert severity={message.severity}> {message.content} </Alert> : null}
             </CardContent>
             <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                    <FavoriteIcon />
+                <IconButton aria-label="add to favorites" disabled>
+                    <FavoriteIcon  />
                 </IconButton>
-                <IconButton aria-label="share">
+                <IconButton aria-label="share" disabled>
                     <ShareIcon />
                 </IconButton>
                 <IconButton aria-label="delete" onClick={()=>deletePost()} >

@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { CircularProgress, makeStyles, Paper } from "@material-ui/core";
 import Header from "../Shared/Header/Header";
 import LoginForm from "./LoginForm";
 import axios from "axios";
@@ -11,13 +11,18 @@ const useStyles = makeStyles({
         height: "100%",
         width: "100%",
     },
-
+    "loading-spinner": {
+        width: "100%",
+        display: "flex",
+        justifyContent: "center"
+    }
 })
 
 
 const LoginPage = (props) => {
     const classes = useStyles();
     const history = useHistory();
+    const [loading, setLoading] = useState(false);
     
     const header_optns = {
         title: "ChitChat",
@@ -37,6 +42,7 @@ const LoginPage = (props) => {
     });
 
     const login = async (formData) => {
+        setLoading(true);
         const url = `${process.env.REACT_APP_SERVER_HOST}/login`;
         try {
             const resp = await axios.post(url, formData);
@@ -47,23 +53,32 @@ const LoginPage = (props) => {
                     header: resp.status,
                     message: resp.data.message
                 })
+                setLoading(false);
                 history.push("/dashboard");
             }
         } catch (err) {
+            setLoading(false);
             setModal({
                 open: true,
-                header: err.name,
-                message: err.message
+                header: "Error",
+                message: (err.response===undefined)? "Some error occurred" : err.response.data.message
             })
         }
     }
 
+    const loadingSpinner = (loading) ? (<div className={classes["loading-spinner"]}>
+        <CircularProgress color="secondary" />
+    </div>) : null;
+    
 
     return (
         <div className={classes.login_page}>
             <Header options={header_optns} />
 
-            <LoginForm onLogin={login} />
+            <LoginForm onLogin={login} loading={loading} />
+
+            {loadingSpinner}
+
             <Popup 
                 onClose={()=>setModal({open:false, header: '', message: ''})}
                 {...modal}

@@ -21,7 +21,7 @@ function App() {
     return (
         <div className={classes.app}>
             <BrowserRouter>
-                <Route exact path="/" component={HomePage} />
+                <Route exact path="/" component={LoginPage} />
                 <Route exact path="/login" component={LoginPage} />
                 <Route exact path="/signup" component={SignupPage} />
                 <Route exact path="/dashboard" component={Dashboard} />

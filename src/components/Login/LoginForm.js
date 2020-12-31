@@ -127,6 +127,7 @@ const LoginForm = (props) => {
                         color="primary"
                         fullWidth
                         className={classes.login_button}
+                        disabled={props.loading}
                     >
                         Login
                     </Button>

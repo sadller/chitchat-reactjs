@@ -4,6 +4,7 @@ import Post from "../Post/Post";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
+import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles({
     posts: {
@@ -26,6 +27,8 @@ const Timeline = (props) => {
     const [postsPending, setPostsPending] = useState(true);
     // limit, skip for pagination
     const [skip, setSkip] = useState(0);
+    const [message, setMessage] = useState({show: false, severity: "info", content: ""})
+
 
     const loadTimeline = async () => {
         try {
@@ -40,13 +43,21 @@ const Timeline = (props) => {
                 if(newPosts.length>0){
                     setPosts(posts.concat(newPosts));
                     setSkip(skip + 5);
+                    if(newPosts.length<5) setPostsPending(false);
                 }else{
                     setPostsPending(false);
                 }
             }
         } catch (err) {
-            console.log(err);
-            history.push("/login");
+            setPostsPending(false);
+            setMessage({
+                show: true,
+                severity: "error",
+                content: (err.response===undefined) ? "Some error occurred" : err.response.data.message
+            })
+            if (err.response!=undefined && err.response.status === 403) {
+                history.push("/login");
+            }
         }
     }
 
@@ -70,6 +81,8 @@ const Timeline = (props) => {
             {posts.map(post => {
                 return <Post post={post} key={post._id} />
             })}
+
+            { message.show ? <Alert severity={message.severity}> {message.content} </Alert> : null}
 
             {loadingSpinner}
 

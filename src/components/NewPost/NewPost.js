@@ -1,9 +1,9 @@
-import { Backdrop, Fade, LinearProgress, makeStyles, Modal, Typography } from "@material-ui/core";
+import { Backdrop, CircularProgress, Fade, makeStyles, Modal, Typography } from "@material-ui/core";
 import NewPostForm from "./NewPostForm";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
-import { v4 as uuidv4 } from 'uuid';
 import { useState } from "react";
+import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles({
     modal: {
@@ -24,38 +24,58 @@ const NewPost = (props) => {
 
     const classes = useStyles();
     const history = useHistory();
-    const [uploadProgress, setUploadProgress] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState({show: false, severity: "info", content: ""})
 
     const submitPost = async (post_data) => {
         try {
+            setLoading(true)
             let formData = new FormData();
             post_data.files.forEach(file => {
-                formData.append("images", file, uuidv4()+"."+/(?:\.([^.]+))?$/.exec(file.name)[1]);
+                formData.append("images", file);
             })
             formData.append("text", post_data.text);
             const url = `${process.env.REACT_APP_SERVER_HOST}/posts/`;
-            const headers = {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
+
             const config = {
-                onUploadProgress: progressEvent => {
-                    setUploadProgress(progressEvent.loaded / progressEvent.total * 100);
-                }
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
+                // onUploadProgress: progressEvent => {
+                //     setUploadProgress(progressEvent.loaded / progressEvent.total * 100);
+                // }
             }
-            const resp = await axios.post(url, formData,{headers}, config);
+            const resp = await axios.post(url, formData, config);
             console.log(resp.data);
-            props.onClose();
+            setLoading(false);
+            closeModal();
             history.go(0);
         } catch (err) {
-            console.log(err);
-            history.push("/login");
+            setLoading(false);
+            setMessage({
+                show: true,
+                severity: "error",
+                content: (err.response===undefined) ? "Some error occurred" : err.response.data.message
+            });
+            if (err.response!=undefined && err.response.status === 403) {
+                history.push("/login");
+            }
         }
+    }
+
+    const closeModal = () => {
+        props.onClose();
+        setMessage({
+            show: false,
+            severity: "info",
+            content: ""
+        })
     }
 
     return (
         <Modal
             open={props.open}
-            onClose={props.onClose}
+            onClose={closeModal}
             closeAfterTransition
             BackdropComponent={Backdrop}
             BackdropProps={{
@@ -68,9 +88,12 @@ const NewPost = (props) => {
                     <Typography variant="h6">
                         New Post
                     </Typography>
-                    <NewPostForm closeModal={props.onClose} submitPost={submitPost} />
+
+                    { message.show ? <Alert severity={message.severity}> {message.content} </Alert> : null}
                     
-                    { uploadProgress>0 ? <LinearProgress variant="determinate" value={uploadProgress} /> : null}
+                    <NewPostForm closeModal={props.onClose} submitPost={submitPost} loading={loading} />
+
+                    {loading ? <CircularProgress variant="indeterminate" /> : null}
                 </div>
             </Fade>
 
